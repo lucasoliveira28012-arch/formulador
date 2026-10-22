@@ -146,7 +146,7 @@ const $=id=>document.getElementById(id);
 const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const M_UREIA='🚨 ATENÇÃO: Limi-te crítico de 1,5% ultrapassado para Ureia Pecuária. Risco extremo de intoxicação por amónia e morte súbita do animal!';
 const M_BANDA='🚨 ATENÇÃO: Limite de 15% ultrapassado para Banda de Feijão. O excesso de grão cru contém fatores antinutricionais que causam diarreia severa e bloqueiam a digestão no rúmen.';
-const M_URESE='🚨 ALERTA CRÍTICO: Mistura letal detetada! A Banda de Feijão crua contém a enzima urease, que reage instantaneamente com a Ureia Pecuária libertando gás amónia. Esta mistura causa intoxicação fulminante. Remova a Ureia ou substitua o feijão por Farelo de Soja tostado.';
+const M_URESE='🚨 ALERTA CRÍTICOasds: Mistura letal detetada! A Banda de Feijão crua contém a enzima urease, que reage instantaneamente com a Ureia Pecuária libertando gás amónia. Esta mistura causa intoxicação fulminante. Remova a Ureia ou substitua o feijão por Farelo de Soja tostado.';
 const isUreia=n=>norm(n).includes('ureia');
 const isUrease=n=>{n=norm(n);return n.includes('banda de feijao')||n.includes('soja crua')};
 const brl=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
