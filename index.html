@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Formulador de Ração</title>
+<style>
+:root{--bg:#f6f5f0;--card:#fff;--tx:#1f2a1f;--mut:#667066;--bd:#d9dccf;--pri:#2f6b3a;--prit:#fff;--bad:#b3261e;--badbg:#fde8e6;--ok:#e6f2e6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161a16;--card:#202620;--tx:#e8ece6;--mut:#9aa59a;--bd:#374037;--pri:#6fbf7d;--prit:#10200f;--bad:#ff8a80;--badbg:#3b1f1d;--ok:#1f3322;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:6px 0 12px}h2{font-size:16px;margin:0 0 10px}
+nav{display:flex;gap:6px;margin-bottom:12px}
+nav button{flex:1;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;font:inherit;cursor:pointer}
+nav button.on{background:var(--pri);color:var(--prit);border-color:var(--pri)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:12px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{padding:6px 5px;text-align:left;border-bottom:1px solid var(--bd);font-size:14px}
+th{color:var(--mut);font-weight:600;font-size:12px}
+input,select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:7px;width:100%;min-width:60px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.row>div{flex:1 1 140px;min-width:0}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:3px}
+.btn{background:var(--pri);color:var(--prit);border:0;border-radius:8px;padding:9px 14px;font:inherit;cursor:pointer}
+.x{background:none;border:0;color:var(--bad);font-size:18px;cursor:pointer}
+.calc{background:var(--ok);border-radius:6px;padding:7px;display:inline-block;min-width:70px}
+.alert{background:var(--badbg);color:var(--bad);border:1px solid var(--bad);border-radius:8px;padding:9px 12px;margin:6px 0;font-weight:600}
+.bad input{border-color:var(--bad)}
+.sum{font-size:17px;background:var(--ok);border-radius:10px;padding:14px;font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px}
+.kpi{background:var(--ok);border-radius:8px;padding:10px}.kpi small{display:block;color:var(--mut)}.kpi b{font-size:18px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.crit{background:#8b0000;color:#fff;border:2px solid #ff4d4d;border-radius:8px;padding:10px 12px;margin:6px 0;font-weight:700}
+.lock{background:#8b0000;color:#fff;border-radius:8px;padding:8px 12px;margin-top:8px;font-weight:700}
+.sv{font-size:13px;color:var(--mut);margin-top:8px}
+.ltabs{display:flex;gap:6px;flex-wrap:wrap}.ltabs button{padding:7px 12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:16px;font:inherit;cursor:pointer}.ltabs button.on{background:var(--pri);color:var(--prit);border-color:var(--pri)}.btn{white-space:nowrap}
+.rec{display:block;width:100%;text-align:left;background:var(--bg);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:12px;margin-bottom:8px;font:inherit;cursor:pointer}.rec b{display:block;font-size:16px}.rec span{color:var(--mut);font-size:13px}
+.ing{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px solid var(--bd);font-size:18px}.ing b{font-size:22px}
+.sec{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+.big{background:var(--pri);color:var(--prit);border-radius:12px;padding:18px;font-size:19px;font-weight:600;text-align:center;margin-bottom:10px}.big b{display:block;font-size:36px;line-height:1.2}
+.dica{background:var(--ok);border-radius:8px;padding:10px 12px;margin-top:10px}
+.baldes{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:10px}.balde{background:var(--card);border:3px solid;border-radius:12px;padding:14px;text-align:center}.balde b{display:block;font-size:30px}.balde span{font-weight:600}.balde small{color:var(--mut)}
+.row>div[style*="flex:0"]{flex:0 0 auto;min-width:0}
+#exp{width:100%;height:110px;margin-top:8px;font:12px monospace}
+</style>
+</head>
+<body>
+<main>
+<h1>🌾 Formulador de Ração e Custos</h1>
+<nav><button id="t3" class="on" onclick="tab(3)">Receitas</button><button id="t1" onclick="tab(1)">Formulador</button><button id="t2" onclick="tab(2)">Insumos</button><button id="t4" onclick="tab(4)">Trato diário</button></nav>
+
+<section id="p3">
+  <div id="vLista"><div class="card"><h2>Receitas gravadas</h2><div id="lstRec"></div><p style="margin:10px 0 0"><button class="btn" onclick="novaReceita()">+ Nova receita</button></p></div></div>
+  <div id="vDet" hidden></div>
+</section>
+
+<section id="p4" hidden>
+  <div class="card"><h2>Calculadora de trato diário</h2>
+   <div class="row">
+    <div style="flex:2 1 220px"><label>Selecione a ração</label><select id="trRac" onchange="calcTrato()"></select></div>
+    <div><label>Peso médio do animal (kg)</label><input id="trPeso" type="number" min="0" step="0.1" value="20" oninput="calcTrato()"></div>
+    <div><label>Animais no lote</label><input id="trQtd" type="number" min="0" step="1" value="10" oninput="calcTrato()"></div>
+    <div><label>Meta de consumo (% do PV em MS)</label><input id="trMeta" type="number" min="0" step="0.1" value="3.5" oninput="calcTrato()"></div>
+   </div></div>
+  <div id="trRes"></div>
+</section>
+
+<section id="p1" hidden>
+  <div class="card">
+    <div class="row"><div><label>Local de referência</label><select id="localRef" onchange="mudaLocal(this.value)"></select></div><div style="flex:2 1 220px"><label>Nome da ração</label><input id="nome" value="Ração Crescimento 14% PB" oninput="S.nome=this.value;save()"></div></div>
+  </div>
+  <div class="card">
+    <h2>Itens da mistura</h2>
+    <div class="row" style="margin-bottom:10px">
+      <div style="flex:2 1 220px"><label>Selecione o insumo</label><select id="sel"></select></div>
+      <div><label>Quantidade MO (kg)</label><input id="qtd" type="number" min="0" step="0.1" value="10"></div>
+      <div style="flex:0 0 auto"><button class="btn" onclick="addItem()">Adicionar</button></div>
+    </div>
+    <div class="scroll"><table><thead><tr><th>Insumo</th><th>Qtd MO (kg)</th><th>Qtd MS (kg)</th><th>Custo (R$)</th><th>% inclusão MS</th><th>PB fornecida (%)</th><th></th></tr></thead><tbody id="itens"></tbody></table></div>
+    <div id="alertas"></div><div id="bloqmsg"></div>
+  </div>
+  <div class="card">
+    <div class="kpis">
+      <div class="kpi"><small>Peso total MO (pesagem)</small><b id="kPeso">0 kg</b></div>
+      <div class="kpi"><small>Peso total em MS</small><b id="kPesoMS">0 kg</b></div>
+      <div class="kpi"><small>Custo total da batida</small><b id="kCusto">R$ 0,00</b></div>
+      <div class="kpi"><small>Custo por kg</small><b id="kKg">R$ 0,00</b></div>
+      <div class="kpi"><small>PB total (na MS)</small><b id="kPB">0,00%</b></div>
+      <div class="kpi"><small>🟢 Volumoso (MO)</small><b id="kVol">0 kg</b></div>
+      <div class="kpi"><small>🟠 Concentrado (MO)</small><b id="kCon">0 kg</b></div>
+    </div>
+    <div class="sum" id="resumo"></div>
+    <p style="margin:10px 0 0"><button class="btn" id="btnSalvar" onclick="gravar()">Gravar receita</button></p>
+    <div id="salvas" class="sv"></div>
+  </div>
+</section>
+
+<section id="p2" hidden>
+  <div class="card">
+    <h2>Cadastro de insumos por local</h2>
+    <div id="ltabs" class="ltabs"></div>
+    <label style="margin-top:10px">Novo local / cliente / fornecedor</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px"><input id="novoLocal" placeholder="Ex.: Dormentes" style="flex:1 1 180px;width:auto;min-width:0"><button class="btn" onclick="criaLocal(false)">Criar vazio</button><button class="btn" onclick="criaLocal(true)">Copiar do local atual</button></div>
+    <div id="locmsg" class="sv"></div>
+    <div class="scroll"><table><thead><tr><th>Nome</th><th>Preço/saco (R$)</th><th>Peso saco (kg)</th><th>Preço/kg (R$)</th><th>MS (%)</th><th>PB na MS (%)</th><th>Limite máx. (%)</th><th>Categoria</th><th></th></tr></thead><tbody id="ins"></tbody></table></div>
+    <p style="margin:10px 0 0"><button class="btn" onclick="novoInsumo()">+ Novo insumo</button></p>
+    
+    
+    <p style="color:var(--mut);font-size:13px">PB sempre na matéria seca (ureia ≈ 284% de equivalente proteico). Limites de inclusão são aplicados sobre a MS. Silagem: informe preço e peso de um lote em MO (ex.: 1000 kg). Dados salvos neste navegador.</p>
+  </div>
+</section>
+</main>
+
+<script>
+const KEY='formulador-racao-v3';
+const padrao={nome:'Ração Crescimento 14% PB',itens:[],local:'Fazenda Nova',locais:['Fazenda Nova'],
+ insumos:[
+ {id:1,nome:'Milho',sc:110,peso:60,ms:88,pb:9,lim:80,local:'Fazenda Nova'},
+ {id:2,nome:'Farelo de Soja',sc:170,peso:50,ms:89,pb:45,lim:40,local:'Fazenda Nova'},
+ {id:3,nome:'Torta de Algodão',sc:110,peso:50,ms:90,pb:28,lim:15,local:'Fazenda Nova'},
+ {id:4,nome:'Ureia Pecuária',sc:200,peso:50,ms:99,pb:283.8,lim:1.5,local:'Fazenda Nova'},
+ {id:5,nome:'Silagem de Milho',sc:25,peso:25,ms:30,pb:8,lim:100,local:'Fazenda Nova'},
+ {id:6,nome:'Sorgo',sc:85,peso:60,ms:88,pb:9,lim:100,local:'Fazenda Nova'},
+ {id:7,nome:'Palha de Milho',sc:0,peso:0,ms:88,pb:3,lim:100,local:'Fazenda Nova'},
+ {id:8,nome:'Banda de Feijão',sc:85,peso:50,ms:88,pb:25,lim:100,local:'Fazenda Nova'},
+ {id:9,nome:'Núcleo',sc:140,peso:24.8,ms:88,pb:0,lim:100,local:'Fazenda Nova'},
+ {id:10,nome:'Soja Crua',sc:150,peso:50,ms:90,pb:40,lim:100,local:'Fazenda Nova'}
+ 
+ 
+ 
+ ]};
+let S=JSON.parse(JSON.stringify(padrao));
+try{const r=localStorage.getItem(KEY);if(r)S=JSON.parse(r);else{const o=localStorage.getItem('formulador-racao-v2');
+   if(o){const O=JSON.parse(o);S.receitas=O.receitas||[];S.nome=O.nome||S.nome;S.receitas.forEach(x=>{x.local='Fazenda Nova'});
+    S.itens=(O.itens||[]).map(it=>{const oi=(O.insumos||[]).find(i=>i.id===it.id);const ni=oi&&S.insumos.find(i=>i.nome.toLowerCase()===oi.nome.toLowerCase());return ni?{id:ni.id,kg:it.kg}:null}).filter(Boolean);
+    localStorage.removeItem('formulador-padrao')}}}catch(e){}
+S.insumos.forEach(i=>{if(!i.local)i.local='Geral';if(!i.cat)i.cat=catGuess(i.nome)});
+S.locais=Array.from(new Set([...(S.locais||[]),...S.insumos.map(i=>i.local)]));if(!S.locais.length)S.locais=['Geral'];
+if(!S.locais.includes(S.local))S.local=S.locais[0];
+let TL=S.local;
+(S.receitas||[]).forEach((r,k)=>{if(!r.id)r.id=Date.now()+k});
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const $=id=>document.getElementById(id);
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const M_UREIA='🚨 ATENÇÃO: Limite crítico de 1,5% ultrapassado para Ureia Pecuária. Risco extremo de intoxicação por amónia e morte súbita do animal!';
+const M_BANDA='🚨 ATENÇÃO: Limite de 15% ultrapassado para Banda de Feijão. O excesso de grão cru contém fatores antinutricionais que causam diarreia severa e bloqueiam a digestão no rúmen.';
+const M_URESE='🚨 ALERTA CRÍTICO: Mistura letal detetada! A Banda de Feijão crua contém a enzima urease, que reage instantaneamente com a Ureia Pecuária libertando gás amónia. Esta mistura causa intoxicação fulminante. Remova a Ureia ou substitua o feijão por Farelo de Soja tostado.';
+const isUreia=n=>norm(n).includes('ureia');
+const isUrease=n=>{n=norm(n);return n.includes('banda de feijao')||n.includes('soja crua')};
+const brl=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const num=(n,d=2)=>n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const ins=id=>S.insumos.find(i=>i.id===id);
+const kgPreco=i=>i.peso>0?i.sc/i.peso:0;
+
+function tab(n){$('p1').hidden=n!==1;$('p2').hidden=n!==2;$('p3').hidden=n!==3;$('p4').hidden=n!==4;$('t1').className=n===1?'on':'';$('t2').className=n===2?'on':'';$('t3').className=n===3?'on':'';$('t4').className=n===4?'on':'';if(n===1)fillSel();if(n===3)renderLista();if(n===4)renderTrato()}
+function fillSel(){const l=S.insumos.filter(i=>i.local===S.local);$('sel').innerHTML=l.length?l.map(i=>`<option value="${i.id}">${esc(i.nome)}</option>`).join(''):'<option value="">(sem insumos neste local)</option>'}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+/* ---- Itens ---- */
+function addItem(){
+  const id=+$('sel').value,kg=parseFloat($('qtd').value);
+  if(!id||!(kg>0))return;
+  const novo=ins(id);$('bloqmsg').innerHTML='';
+  if(novo){const outros=S.itens.map(x=>ins(x.id)).filter(Boolean);
+    if((isUreia(novo.nome)&&outros.some(o=>isUrease(o.nome)))||(isUrease(novo.nome)&&outros.some(o=>isUreia(o.nome)))){
+      $('bloqmsg').innerHTML='<div class="crit" role="alert">🚫 Adição bloqueada. '+M_URESE+'</div>';return}}
+  const ex=S.itens.find(x=>x.id===id);
+  if(ex)ex.kg+=kg;else S.itens.push({id,kg});
+  renderItens();
+}
+function delItem(id){S.itens=S.itens.filter(x=>x.id!==id);renderItens()}
+function setKg(id,v){S.itens.find(x=>x.id===id).kg=Math.max(0,parseFloat(v)||0);update()}
+function renderItens(){
+  $('itens').innerHTML=S.itens.map(it=>{const i=ins(it.id);if(!i)return'';
+   return `<tr id="row${it.id}"><td>${esc(i.nome)}</td>
+   <td><input type="number" min="0" step="0.1" value="${it.kg}" oninput="setKg(${it.id},this.value)"></td>
+   <td><span class="calc" id="im${it.id}"></span></td><td><span class="calc" id="ic${it.id}"></span></td><td><span class="calc" id="ip${it.id}"></span></td><td><span class="calc" id="ib${it.id}"></span></td>
+   <td><button class="x" onclick="delItem(${it.id})" title="Remover">✕</button></td></tr>`}).join('')
+   ||'<tr><td colspan="7" style="color:var(--mut)">Nenhum ingrediente adicionado.</td></tr>';
+  update();
+}
+function update(){
+  // Peso total e custo total
+  const lista=S.itens.map(it=>({it,i:ins(it.id)})).filter(x=>x.i);
+  const peso=lista.reduce((a,x)=>a+x.it.kg,0);
+  const pesoMS=lista.reduce((a,x)=>a+x.it.kg*(x.i.ms||0)/100,0);
+  let custo=0,pb=0;const msgs=[];const crit=[],warn=[];
+  lista.forEach(({it,i})=>{
+    const c=it.kg*kgPreco(i);                       // custo do item
+    const ms=it.kg*(i.ms||0)/100;                   // kg em matéria seca
+    const pct=pesoMS>0?ms/pesoMS*100:0;             // % inclusão na MS              // % inclusão
+    const pbf=pct/100*i.pb;                         // PB fornecida (pontos %)
+    custo+=c;pb+=pbf;
+    $('im'+it.id).textContent=num(ms)+' kg';$('ic'+it.id).textContent=brl(c);$('ip'+it.id).textContent=num(pct)+'%';$('ib'+it.id).textContent=num(pbf)+'%';
+    const nn=norm(i.nome);let estoura=false;
+    if(isUreia(i.nome)){if(pct>1.5+1e-9){estoura=true;crit.push(M_UREIA)}}
+    else if(nn.includes('banda de feijao')){if(pct>15+1e-9){estoura=true;warn.push(M_BANDA)}}
+    else estoura=i.lim>0&&pct>i.lim+1e-9;
+    $('row'+it.id).className=estoura?'bad':'';
+    if(estoura&&!isUreia(i.nome)&&!nn.includes('banda de feijao')){
+      const n=i.nome.toLowerCase();
+      let risco='Risco de toxidez!';
+      if(n.includes('algod'))risco='Risco de toxidez por Gossipol!';
+      else if(n.includes('ureia'))risco='Risco de intoxicação severa por amônia!';
+      msgs.push(`ATENÇÃO: Limite de ${num(i.lim,1)}% ultrapassado para ${esc(i.nome)} (atual: ${num(pct)}% da MS). ${risco}`);
+    }
+  });
+  if(lista.some(x=>isUreia(x.i.nome))&&lista.some(x=>isUrease(x.i.nome)))crit.unshift(M_URESE);
+  $('btnSalvar').disabled=crit.length>0||!lista.length;
+  $('alertas').innerHTML=crit.map(m=>`<div class="crit" role="alert">${m}</div>`).join('')+warn.concat(msgs.map(m=>'⚠️ '+m)).map(m=>`<div class="alert" role="alert">${m}</div>`).join('');
+  const kg=peso>0?custo/peso:0;window.LAST={kg,pb,peso,pesoMS,custo,bloq:crit.length>0};
+  $('kPeso').textContent=num(peso)+' kg';$('kPesoMS').textContent=num(pesoMS)+' kg';
+  const vol=lista.filter(x=>x.i.cat==='Volumoso').reduce((a,x)=>a+x.it.kg,0),con=peso-vol;
+  $('kVol').textContent=num(vol)+' kg ('+num(peso>0?vol/peso*100:0,1)+'%)';$('kCon').textContent=num(con)+' kg ('+num(peso>0?con/peso*100:0,1)+'%)';$('kCusto').textContent=brl(custo);$('kKg').textContent=brl(kg);$('kPB').textContent=num(pb)+'%';
+  $('resumo').innerHTML=peso>0?`100 kg desta ração (MO) custam ${brl(kg*100)} e a dieta fornece ${num(pb)}% de PB na MS`+((msgs.length||warn.length||crit.length)?' <span style="color:var(--bad)">— ⚠️ fora dos limites de segurança</span>':''):'Adicione ingredientes para ver o resumo.';
+  save();
+}
+
+/* ---- Insumos ---- */
+function renderIns(){renderLtabs();
+  $('ins').innerHTML=S.insumos.filter(i=>i.local===TL).map(i=>`<tr>
+  <td><input value="${esc(i.nome)}" onchange="ed(${i.id},'nome',this.value)"></td>
+  <td><input type="number" step="0.01" value="${i.sc}" oninput="ed(${i.id},'sc',this.value)"></td>
+  <td><input type="number" step="0.1" value="${i.peso}" oninput="ed(${i.id},'peso',this.value)"></td>
+  <td><span class="calc" id="ik${i.id}">${brl(kgPreco(i))}</span></td>
+  <td><input type="number" step="0.1" value="${i.ms}" oninput="ed(${i.id},'ms',this.value)"></td>
+  <td><input type="number" step="0.1" value="${i.pb}" oninput="ed(${i.id},'pb',this.value)"></td>
+  <td><input type="number" step="0.1" value="${i.lim}" oninput="ed(${i.id},'lim',this.value)"></td>
+  <td><select onchange="ed(${i.id},'cat',this.value)"><option${i.cat==='Volumoso'?' selected':''}>Volumoso</option><option${i.cat!=='Volumoso'?' selected':''}>Concentrado</option></select></td>
+  <td><button class="x" onclick="delIns(${i.id})">✕</button></td></tr>`).join('');
+}
+function ed(id,f,v){const i=ins(id);i[f]=(f==='nome'||f==='cat')?v:(parseFloat(v)||0);const k=$('ik'+id);if(k)k.textContent=brl(kgPreco(i));save();renderItens()}
+function novoInsumo(){S.insumos.push({id:Date.now(),nome:'Novo insumo',sc:0,peso:50,ms:88,pb:0,lim:100,cat:'Concentrado',local:TL});renderIns();fillSel();save()}
+function importarV1(){
+  const msg=$('impmsg');let old=null;
+  try{old=JSON.parse(localStorage.getItem('formulador-racao-v1'))}catch(e){}
+  if(!old||!old.insumos||!old.insumos.length){msg.textContent='Nenhum dado anterior encontrado neste navegador/dispositivo.';return}
+  const guess=n=>{n=n.toLowerCase();return n.includes('silag')?30:n.includes('ureia')?99:n.includes('soja')?89:n.includes('algod')?90:n.includes('milho')?88:88};
+  let add=0,upd=0;
+  old.insumos.forEach(o=>{
+    const ms=guess(o.nome||'');
+    const novo={id:o.id,nome:o.nome,sc:o.sc,peso:o.peso,ms:ms,pb:Math.round(o.pb/ms*1000)/10,lim:o.lim,local:TL};
+    const ex=S.insumos.find(i=>i.nome.trim().toLowerCase()===String(o.nome).trim().toLowerCase()&&i.local===TL);
+    if(ex){novo.id=ex.id;Object.assign(ex,novo);upd++}else{if(S.insumos.some(i=>i.id===novo.id))novo.id=Date.now()+add;S.insumos.push(novo);add++}
+  });
+  renderIns();fillSel();renderItens();
+  msg.textContent=add+' adicionados, '+upd+' atualizados. Confira MS e PB (PB convertida para a MS).';
+}
+function fillLocalRef(){$('localRef').innerHTML=S.locais.map(l=>`<option${l===S.local?' selected':''}>${esc(l)}</option>`).join('')}
+function renderLtabs(){
+  const n=l=>S.insumos.filter(i=>i.local===l).length;
+  $('ltabs').innerHTML=S.locais.map(l=>`<button class="${l===TL?'on':''}" onclick="selTab(this.dataset.l)" data-l="${esc(l)}">${esc(l)} (${n(l)})</button>`).join('')
+   +(S.locais.length>1?' <button id="btnDelLoc" onclick="delLocal()">🗑 Excluir este local</button>':'');
+}
+function selTab(l){TL=l;renderIns()}
+function delLocal(){
+  const b=$('btnDelLoc');if(!b||S.locais.length<2)return;
+  const q=S.insumos.filter(i=>i.local===TL).length;
+  if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='Toque de novo: apaga o local e '+q+' insumos';return}
+  const rem=TL,rest=S.locais.filter(l=>l!==rem);
+  if(S.local===rem)mudaLocal(rest[0]);
+  S.locais=rest;S.insumos=S.insumos.filter(i=>i.local!==rem);
+  TL=S.locais[0];fillLocalRef();fillSel();renderIns();save();
+}
+function restauraLocais(){
+  if(S.restaurado)return;S.restaurado=true;
+  let O=null;try{O=JSON.parse(localStorage.getItem('formulador-racao-v2'))}catch(e){}
+  if(O&&O.locais){let c=0;
+    O.locais.forEach(l=>{if(S.locais.includes(l))return;S.locais.push(l);
+      (O.insumos||[]).filter(i=>i.local===l).forEach(i=>S.insumos.push(Object.assign({},i,{id:Date.now()+(c++)})))});
+    (O.receitas||[]).forEach(o=>{const r=(S.receitas||[]).find(x=>x.id===o.id);if(r&&o.local&&S.locais.includes(o.local))r.local=o.local});
+  }
+  save();
+}
+function criaLocal(copia){
+  const m=$('locmsg'),nome=$('novoLocal').value.trim();
+  if(!nome){m.textContent='Digite o nome do local.';return}
+  if(S.locais.some(l=>norm(l)===norm(nome))){m.textContent='Esse local já existe.';return}
+  S.locais.push(nome);let c=0;
+  if(copia)S.insumos.filter(i=>i.local===TL).slice().forEach(i=>{S.insumos.push(Object.assign({},i,{id:Date.now()+(c++),local:nome}))});
+  TL=nome;$('novoLocal').value='';fillLocalRef();renderIns();save();
+  m.textContent=copia?`Local criado com ${c} insumos copiados. Atualize os preços desta aba.`:'Local criado. Cadastre os insumos desta aba.';
+}
+function mudaLocal(v){
+  const novos=[],perdidos=[];
+  S.itens.forEach(it=>{const i=ins(it.id);if(!i)return;
+    const m=S.insumos.find(x=>x.local===v&&norm(x.nome)===norm(i.nome));
+    if(m){const e=novos.find(n=>n.id===m.id);if(e)e.kg+=it.kg;else novos.push({id:m.id,kg:it.kg})}else perdidos.push(i.nome)});
+  S.local=v;S.itens=novos;fillSel();renderItens();
+  $('bloqmsg').innerHTML=perdidos.length?`<div class="alert">Local alterado para ${esc(v)}. Sem preço cadastrado neste local (removidos da mistura): ${perdidos.map(esc).join(', ')}.</div>`:'';
+}
+function recDados(r){
+  const itens=(r.itens||[]).map(it=>({nome:it.nome||(ins(it.id)||{}).nome||'?',kg:it.kg}));
+  const peso=r.peso!=null?r.peso:itens.reduce((a,x)=>a+x.kg,0);
+  const custo=r.custo!=null?r.custo:(r.kg||0)*peso;
+  return{itens,peso,custo,kg:peso>0?custo/peso:0,pb:r.pb||0};
+}
+function renderLista(){
+  $('vDet').hidden=true;$('vLista').hidden=false;
+  const l=(S.receitas||[]).slice().reverse();
+  $('lstRec').innerHTML=l.length?l.map(r=>{const d=recDados(r);return `<button class="rec" onclick="abrirDet(${r.id})"><b>${esc(r.nome)} — ${esc(r.local||'')}</b><span>${r.data} · ${brl(d.kg)}/kg · PB ${num(d.pb)}% (MS) · ${num(d.peso)} kg</span></button>`}).join(''):'<p style="color:var(--mut)">Nenhuma receita gravada ainda. Monte uma no Formulador e toque em "Gravar receita".</p>';
+}
+function abrirDet(id){
+  const r=(S.receitas||[]).find(x=>x.id===id);if(!r)return;window.DET=r;const d=recDados(r);
+  $('vLista').hidden=true;$('vDet').hidden=false;
+  $('vDet').innerHTML=`<div class="card"><button class="btn sec" onclick="renderLista()">← Voltar</button>
+  <h2 style="margin:12px 0 2px;font-size:22px">${esc(r.nome)}</h2><div style="color:var(--mut)">📍 ${esc(r.local||'—')} · gravada em ${r.data}</div></div>
+  <div class="kpis">
+   <div class="kpi"><small>Custo total da batida</small><b>${brl(d.custo)}</b></div>
+   <div class="kpi"><small>Custo por kg</small><b>${brl(d.kg)}/kg</b></div>
+   <div class="kpi"><small>Peso total a pesar (MO)</small><b>${num(d.peso)} kg</b></div>
+   <div class="kpi"><small>Proteína bruta (na MS)</small><b>${num(d.pb)}%</b></div>
+   <div class="kpi"><small>Teor de MS da ração</small><b>${recMS(r)==null?'—':num(recMS(r))+'%'}</b></div></div>
+  <div class="card"><h2>Ingredientes a pesar</h2>${d.itens.map(x=>`<div class="ing"><span>${esc(x.nome)}</span><b>${num(x.kg)} kg</b></div>`).join('')}</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"><button class="btn" onclick="editarRec()">Abrir no formulador</button><button class="btn sec" id="btnDel" onclick="excluirRec()">Excluir</button></div>`;
+  window.scrollTo(0,0);
+}
+function novaReceita(){S.itens=[];S.nome='Nova ração';$('nome').value=S.nome;renderItens();tab(1)}
+function editarRec(){
+  const r=window.DET;if(!r)return;
+  S.local=r.local||S.locais[0];if(!S.locais.includes(S.local))S.locais.push(S.local);TL=S.local;
+  S.nome=r.nome;$('nome').value=r.nome;S.itens=[];
+  recDados(r).itens.forEach(it=>{const m=S.insumos.find(x=>x.local===S.local&&norm(x.nome)===norm(it.nome));if(m)S.itens.push({id:m.id,kg:it.kg})});
+  fillLocalRef();fillSel();renderItens();tab(1);
+}
+function excluirRec(){
+  const b=$('btnDel');if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='Toque de novo para excluir';return}
+  S.receitas=S.receitas.filter(x=>x.id!==window.DET.id);save();renderSalvas();renderLista();
+}
+function salvaPadrao(){try{localStorage.setItem('formulador-padrao',JSON.stringify({insumos:S.insumos,locais:S.locais,local:S.local}));$('impmsg').textContent='Insumos e locais atuais salvos como padrão.'}catch(e){$('impmsg').textContent='Não foi possível salvar.'}}
+function restauraPadrao(){let p=null;try{p=JSON.parse(localStorage.getItem('formulador-padrao'))}catch(e){}
+  if(!p){$('impmsg').textContent='Nenhum padrão salvo ainda.';return}
+  S.insumos=JSON.parse(JSON.stringify(p.insumos));S.locais=p.locais.slice();S.local=p.local;TL=S.local;S.itens=[];
+  fillLocalRef();fillSel();renderIns();renderItens();$('impmsg').textContent='Padrão restaurado.'}
+function exportar(){const t=$('exp');t.hidden=false;t.value=JSON.stringify({locais:S.locais,insumos:S.insumos});t.select();$('impmsg').textContent='Copie o texto abaixo e envie no chat para eu fixar como padrão do app.'}
+function recMS(r){
+  if(r.pesoMS>0&&r.peso>0)return r.pesoMS/r.peso*100;
+  let mo=0,ms=0;
+  for(const it of (r.itens||[])){const nome=it.nome||(ins(it.id)||{}).nome||'';
+    const m=S.insumos.find(x=>norm(x.nome)===norm(nome)&&x.local===r.local)||S.insumos.find(x=>norm(x.nome)===norm(nome));
+    if(!m)return null;mo+=it.kg;ms+=it.kg*(m.ms||0)/100}
+  return mo>0?ms/mo*100:null;
+}
+function renderTrato(){
+  const T=S.trato||{},l=(S.receitas||[]).slice().reverse();
+  if(!l.length){$('trRac').innerHTML='<option value="">(nenhuma ração gravada)</option>';$('trRes').innerHTML='<div class="card" style="color:var(--mut)">Grave uma receita no Formulador para usar a calculadora.</div>';return}
+  $('trRac').innerHTML=l.map(r=>`<option value="${r.id}">${esc(r.nome)} — ${esc(r.local||'')}</option>`).join('');
+  if(T.rac&&l.some(r=>r.id===T.rac))$('trRac').value=T.rac;
+  if(T.peso!=null)$('trPeso').value=T.peso;if(T.qtd!=null)$('trQtd').value=T.qtd;if(T.meta!=null)$('trMeta').value=T.meta;
+  calcTrato();
+}
+function calcTrato(){
+  const rid=+$('trRac').value,peso=parseFloat($('trPeso').value)||0,qtd=parseFloat($('trQtd').value)||0,meta=parseFloat($('trMeta').value)||0;
+  S.trato={rac:rid,peso:$('trPeso').value,qtd:$('trQtd').value,meta:$('trMeta').value};save();
+  const r=(S.receitas||[]).find(x=>x.id===rid);if(!r){$('trRes').innerHTML='';return}
+  const ms=recMS(r);
+  if(!(ms>0)){$('trRes').innerHTML='<div class="alert">Não foi possível obter o teor de MS desta ração. Abra-a no Formulador e grave de novo.</div>';return}
+  const pv=peso*qtd,cons=pv*(meta/100),mo=cons/ms*100;
+  const vc=recVC(r),pvol=vc.tot>0?vc.vol/vc.tot:0,pcon=vc.tot>0?vc.conc/vc.tot:0;
+  const baldes=`<div class="baldes"><div class="balde" style="border-color:#2e9e4f"><span>🟢 Balde Volumoso</span><b>${num(mo*pvol)} kg</b><small>por dia · ${num(pvol*100,1)}% da MO</small></div><div class="balde" style="border-color:#e08a1e"><span>🟠 Balde Concentrado</span><b>${num(mo*pcon)} kg</b><small>por dia · ${num(pcon*100,1)}% da MO</small></div></div>`;           // MO = (MS/teor MS)*100
+  const aviso=meta>5||(meta>0&&meta<1.5)?`<div class="alert">⚠️ Meta de ${num(meta,1)}% do PV é incomum. Confira o valor.</div>`:'';
+  $('trRes').innerHTML=`${aviso}<div class="big">Pesar para este lote:<b>${num(mo)} kg</b>de ração por dia</div>${baldes}
+  <div class="kpis">
+   <div class="kpi"><small>Peso vivo total do lote</small><b>${num(pv)} kg</b></div>
+   <div class="kpi"><small>Consumo diário em MS</small><b>${num(cons)} kg</b></div>
+   <div class="kpi"><small>Teor de MS da ração</small><b>${num(ms)}%</b></div>
+   <div class="kpi"><small>Por animal (MO/dia)</small><b>${qtd>0?num(mo/qtd):'0,00'} kg</b></div></div>
+  <div class="card"><h2>Divisão por tratos</h2>
+   <div class="ing"><span>2 tratos de<br><small style="color:var(--mut);font-size:13px">🟢 ${num(mo*pvol/2)} + 🟠 ${num(mo*pcon/2)} kg</small></span><b>${num(mo/2)} kg</b></div>
+   <div class="ing"><span>3 tratos de<br><small style="color:var(--mut);font-size:13px">🟢 ${num(mo*pvol/3)} + 🟠 ${num(mo*pcon/3)} kg</small></span><b>${num(mo/3)} kg</b></div>
+   <div class="dica">💡 Dica: Divida esta quantidade total em pelo menos 2 a 3 tratos diários para evitar acidose e sobras no cocho.</div></div>`;
+}
+function catGuess(n){return /silag|palha|capim|feno|bagaco|bagaço|pasto|volum/i.test(String(n))?'Volumoso':'Concentrado'}
+function recVC(r){
+  let vol=0,conc=0;
+  (r.itens||[]).forEach(it=>{let cat=it.cat;
+    if(!cat){const nome=it.nome||(ins(it.id)||{}).nome||'';const m=S.insumos.find(x=>norm(x.nome)===norm(nome)&&x.local===r.local)||S.insumos.find(x=>norm(x.nome)===norm(nome));cat=m?m.cat:catGuess(nome)}
+    if(cat==='Volumoso')vol+=it.kg;else conc+=it.kg});
+  return{vol,conc,tot:vol+conc};
+}
+function renderSalvas(){const l=S.receitas||[];$('salvas').innerHTML=l.length?'<b>Receitas gravadas:</b><br>'+l.slice(-5).reverse().map(r=>`${esc(r.nome)} (${esc(r.local||'—')}) — ${brl(r.kg)}/kg MO, ${num(r.pb)}% PB (MS) — ${r.data}`).join('<br>'):''}
+function gravar(){
+  const L=window.LAST;if(!L||L.bloq||!(L.peso>0))return;
+  S.receitas=S.receitas||[];S.receitas.push({nome:S.nome,local:S.local,kg:L.kg,pb:L.pb,data:new Date().toLocaleDateString('pt-BR'),id:Date.now(),custo:L.custo,peso:L.peso,pesoMS:L.pesoMS,itens:S.itens.map(it=>{const i=ins(it.id);return{nome:i?i.nome:'?',kg:it.kg,cat:i?i.cat:'Concentrado'}})});window.NEWREC=S.receitas[S.receitas.length-1].id;save();renderSalvas();tab(3);abrirDet(window.NEWREC);
+  save();renderSalvas();
+}
+function delIns(id){if(!confirm('Excluir insumo? Ele sairá também da formulação.'))return;S.insumos=S.insumos.filter(i=>i.id!==id);S.itens=S.itens.filter(x=>x.id!==id);renderIns();fillSel();renderItens()}
+
+[['Banda de Feijão',{sc:60,peso:50,ms:90,pb:25,lim:15}],['Soja Crua',{sc:150,peso:50,ms:90,pb:40,lim:100}]].forEach(([n,d],k)=>{if(!S.insumos.some(i=>norm(i.nome)===norm(n)))S.insumos.push(Object.assign({id:Date.now()+k,nome:n,local:S.locais[0]},d))});
+restauraLocais();S.insumos.forEach(i=>{if(!i.cat)i.cat=catGuess(i.nome)});$('nome').value=S.nome;fillLocalRef();fillSel();renderSalvas();renderLista();renderIns();renderItens();
+</script>
+</body>
+</html>
